@@ -161,4 +161,7 @@
     <java-symbol type="dimen" name="min_window_blur_radius" />
     <java-symbol type="dimen" name="max_window_blur_radius" />
 
+    <!-- DT2W Gesture -->
+    <java-symbol type="bool" name="config_dt2sGestureEnabledByDefault" />
+
 </resources>
