@@ -1114,6 +1114,10 @@ final class DefaultPermissionGrantPolicy {
         // Pixel Live Wallpapers
         grantSystemFixedPermissionsToSystemPackage(pm, "com.google.pixel.livewallpaper", userId,
                 ALWAYS_LOCATION_PERMISSIONS);
+
+        // Flipendo
+        grantSystemFixedPermissionsToSystemPackage(pm, "com.google.android.flipendo", userId,
+                SUSPEND_APP_PERMISSIONS);
     }
 
     private String getDefaultSystemHandlerActivityPackageForCategory(PackageManagerWrapper pm,
