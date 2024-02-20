@@ -68,6 +68,7 @@ import android.media.IAudioService;
 import android.media.MediaRouter2Manager;
 import android.media.projection.MediaProjectionManager;
 import android.media.session.MediaSessionManager;
+import android.nearby.NearbyManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkScoreManager;
 import android.net.wifi.WifiManager;
@@ -421,6 +422,12 @@ public class FrameworkServicesModule {
     @Provides
     static MediaSessionManager provideMediaSessionManager(Context context) {
         return context.getSystemService(MediaSessionManager.class);
+    }
+
+    @Provides
+    @Singleton
+    static NearbyManager provideNearbyManager(Context context) {
+        return context.getSystemService(NearbyManager.class);
     }
 
     @Provides
