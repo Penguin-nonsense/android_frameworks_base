@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * Changes from Qualcomm Innovation Center are provided under the following license:
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * SPDX-License-Identifier: BSD-3-Clause-Clear
+*/
 
 package com.android.server;
 
@@ -254,6 +259,8 @@ import java.util.concurrent.Future;
 public final class SystemServer implements Dumpable {
 
     private static final String TAG = "SystemServer";
+
+    private static boolean sIsBike = SystemProperties.getBoolean("ro.hw.vehicle.isbike", false);
 
     private static final long SLOW_DISPATCH_THRESHOLD_MS = 100;
     private static final long SLOW_DELIVERY_THRESHOLD_MS = 200;
@@ -1643,7 +1650,7 @@ public final class SystemServer implements Dumpable {
                 traceLog.traceEnd();
             }, START_HIDL_SERVICES);
 
-            if (!isWatch && enableVrService) {
+            if (!sIsBike && !isWatch && enableVrService) {
                 t.traceBegin("StartVrManagerService");
                 mSystemServiceManager.startService(VrManagerService.class);
                 t.traceEnd();
@@ -2337,9 +2344,11 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(JOB_SCHEDULER_SERVICE_CLASS);
             t.traceEnd();
 
-            t.traceBegin("StartSoundTrigger");
-            mSystemServiceManager.startService(SoundTriggerService.class);
-            t.traceEnd();
+            if (!sIsBike) {
+                t.traceBegin("StartSoundTrigger");
+                mSystemServiceManager.startService(SoundTriggerService.class);
+                t.traceEnd();
+            }
 
             t.traceBegin("StartTrustManager");
             mSystemServiceManager.startService(TrustManagerService.class);
@@ -2362,9 +2371,11 @@ public final class SystemServer implements Dumpable {
             // FEATURE_VOICE_RECOGNIZERS feature is set, because it needs to take care
             // of initializing various settings.  It will internally modify its behavior
             // based on that feature.
-            t.traceBegin("StartVoiceRecognitionManager");
-            mSystemServiceManager.startService(VOICE_RECOGNITION_MANAGER_SERVICE_CLASS);
-            t.traceEnd();
+            if (!sIsBike) {
+                t.traceBegin("StartVoiceRecognitionManager");
+                mSystemServiceManager.startService(VOICE_RECOGNITION_MANAGER_SERVICE_CLASS);
+                t.traceEnd();
+            }
 
             if (GestureLauncherService.isGestureLauncherEnabled(context.getResources())) {
                 t.traceBegin("StartGestureLauncher");
