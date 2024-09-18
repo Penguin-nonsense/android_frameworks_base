@@ -159,6 +159,7 @@ public class BatteryMeterViewControllerTest extends SysuiTestCase {
                 StatusBarLocation.HOME,
                 mUserTracker,
                 mConfigurationController,
+                mTunerService,
                 mHandler,
                 mContentResolver,
                 mFakeFeatureFlags,
