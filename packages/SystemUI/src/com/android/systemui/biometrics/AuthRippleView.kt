@@ -91,7 +91,7 @@ class AuthRippleView(context: Context?, attrs: AttributeSet?) : View(context, at
         rippleShader.sparkleStrength = RIPPLE_SPARKLE_STRENGTH
         updateRippleFadeParams()
         ripplePaint.shader = rippleShader
-        setLockScreenColor(resources.getColor(android.R.color.system_accent1_100)) // default color
+        setLockScreenColor(0xffffffff.toInt()) // default color
 
         dwellShader.color = 0xffffffff.toInt() // default color
         dwellShader.progress = 0f
