@@ -72,7 +72,8 @@ public class PropImitationHooks {
     private static final String PACKAGE_VELVET = "com.google.android.googlequicksearchbox";
     private static final String PACKAGE_WALLPAPER = "com.google.android.apps.wallpaper";
     private static final String PACKAGE_WALLPAPEREFFECTS = "com.google.android.wallpaper.effects";
-
+    private static final String PACKAGE_GEMINI = "com.google.android.apps.bard";
+    
     private static final String PROCESS_GMS_GAPPS = PACKAGE_GMS + ".gapps";
     private static final String PROCESS_GMS_GSERVICE = PACKAGE_GMS + ".gservice";
     private static final String PROCESS_GMS_LEARNING = PACKAGE_GMS + ".learning";
@@ -237,6 +238,7 @@ public class PropImitationHooks {
             case PACKAGE_VELVET:
             case PACKAGE_WALLPAPER:
             case PACKAGE_WALLPAPEREFFECTS:
+            case PACKAGE_GEMINI:
                 if (sIsTablet) {
                     dlog("Spoofing Pixel Tablet for: " + packageName + " process: " + processName);
                     setProps(sPixelTabletProps);
