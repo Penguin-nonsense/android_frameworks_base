@@ -17,6 +17,7 @@
 
 <com.android.systemui.statusbar.phone.KeyguardBottomAreaView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:systemui="http://schemas.android.com/apk/res-auto"
     android:id="@+id/keyguard_bottom_area"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
@@ -32,13 +33,21 @@
 
         <com.android.systemui.statusbar.phone.FaceUnlockImageView
             android:id="@+id/face_unlock_icon"
-            android:layout_height="@dimen/keyguard_affordance_fixed_height"
-            android:layout_width="@dimen/keyguard_affordance_fixed_width"
-            android:layout_marginBottom="@dimen/keyguard_lock_height"
-            android:padding="@dimen/keyguard_affordance_fixed_padding"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:singleLine="true" 
+            android:paddingVertical="@dimen/face_unlock_indicator_padding_vertical"
+            android:paddingStart="@dimen/face_unlock_indicator_padding_start"
+            android:paddingEnd="@dimen/face_unlock_indicator_padding_end"
             android:layout_gravity="center"
-            android:scaleType="fitCenter"
-            android:tint="#FFFFFF"
+            android:tint="@android:color/white"
+            android:gravity="center"
+            android:elevation="100dp"
+            android:textSize="@dimen/face_unlock_indicator_text_size"
+            android:minWidth="@dimen/face_unlock_indicator_min_width"
+            android:includeFontPadding="false"
+            android:textAlignment="viewStart"
+            systemui:iconGravity="textStart"
             android:visibility="gone" />
 
         <com.android.systemui.statusbar.phone.KeyguardIndicationTextView

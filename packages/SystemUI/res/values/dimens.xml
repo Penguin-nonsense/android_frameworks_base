@@ -1851,7 +1851,16 @@
     <dimen name="rear_display_title_bottom_padding">16dp</dimen>
     <dimen name="rear_display_title_top_padding_opened">24dp</dimen>
     <dimen name="rear_display_title_bottom_padding_opened">16dp</dimen>
-
+    
+    <!-- Face unlock indicator -->
+    <dimen name="face_unlock_indicator_padding_vertical">12dp</dimen>
+    <dimen name="face_unlock_indicator_padding_start">12dp</dimen>
+    <dimen name="face_unlock_indicator_padding_end">22dp</dimen>
+    <dimen name="face_unlock_indicator_min_width">0dp</dimen>
+    <dimen name="face_unlock_indicator_text_size">13sp</dimen>
+    <dimen name="face_unlock_indicator_icon_size">18dp</dimen>
+    <dimen name="face_unlock_indicator_icon_padding">9dp</dimen>
+ 
     <!-- Bouncer user switcher margins -->
     <dimen name="bouncer_user_switcher_view_mode_user_switcher_bottom_margin">0dp</dimen>
     <dimen name="bouncer_user_switcher_view_mode_view_flipper_bottom_margin">0dp</dimen>
