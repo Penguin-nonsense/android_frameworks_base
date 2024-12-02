@@ -50,7 +50,6 @@ import com.android.systemui.qs.QSHost;
 import com.android.systemui.qs.QsEventLogger;
 import com.android.systemui.qs.logging.QSLogger;
 import com.android.systemui.qs.tileimpl.QSTileImpl;
-import com.android.systemui.qs.tiles.dialog.BluetoothDialogFactory;
 import com.android.systemui.statusbar.policy.BluetoothController;
 
 import java.util.List;
@@ -67,9 +66,7 @@ public class BluetoothTile extends QSTileImpl<BooleanState> {
 
     private static final String TAG = BluetoothTile.class.getSimpleName();
 
-    private final Handler mHandler;
     private final BluetoothController mController;
-    private final BluetoothDialogFactory mBluetoothDialogFactory;
 
     private CachedBluetoothDevice mMetadataRegisteredDevice = null;
 
@@ -91,16 +88,13 @@ public class BluetoothTile extends QSTileImpl<BooleanState> {
         super(host, uiEventLogger, backgroundLooper, mainHandler, falsingManager, metricsLogger,
                 statusBarStateController, activityStarter, qsLogger);
         mController = bluetoothController;
-        mBluetoothDialogFactory = bluetoothDialogFactory;
         mController.observe(getLifecycle(), mCallback);
         mExecutor = new HandlerExecutor(mainHandler);
     }
 
     @Override
     public BooleanState newTileState() {
-        BooleanState s = new BooleanState();
-        s.forceExpandIcon = true;
-        return s;
+        return new BooleanState();
     }
 
     @Override
@@ -110,7 +104,6 @@ public class BluetoothTile extends QSTileImpl<BooleanState> {
         // Immediately enter transient enabling state when turning bluetooth on.
         refreshState(isEnabled ? null : ARG_SHOW_TRANSIENT_ENABLING);
         mController.setBluetoothEnabled(!isEnabled);
-        mHandler.post(() -> mBluetoothDialogFactory.create(true, view));
     }
 
     @Override

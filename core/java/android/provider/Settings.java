@@ -5920,14 +5920,6 @@ public final class Settings {
         @Readable
         public static final String SENSOR_BLOCKED_APP_DUMMY = "sensor_blocked_app_dummy";
 
-
-        /**
-         *  Enable statusbar double tap gesture on to put device to sleep
-         *  0 = 0ff, 1 = on
-         * @hide
-         */
-        public static final String DOUBLE_TAP_SLEEP_GESTURE = "double_tap_sleep_gesture";
-
         /**
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
@@ -6042,6 +6034,12 @@ public final class Settings {
          * @hide
          */
         public static final String TORCH_POWER_BUTTON_GESTURE = "torch_power_button_gesture";
+
+        /**
+         * Controls whether double tap to sleep is enabled (on lockscreen/homescreen).
+         * @hide
+         */
+        public static final String GESTURE_DOUBLE_TAP_SLEEP = "gesture_double_tap_sleep";
 
         /**
          * Whether allowing pocket service to register sensors and dispatch informations.
@@ -10563,13 +10561,6 @@ public final class Settings {
          */
         @Readable
         public static final String ATTENTIVE_TIMEOUT = "attentive_timeout";
-
-	/**
-         * Controls whether double tap to wake is enabled.
-         * @hide
-         */
-        @Readable
-        public static final String DOUBLE_TAP_TO_WAKE = "double_tap_to_wake";
 
         /**
          * The current assistant component. It could be a voice interaction service,

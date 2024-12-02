@@ -251,12 +251,6 @@ public class OverviewProxyService implements CallbackController<OverviewProxyLis
         }
 
         @Override
-        public void animateNavBarLongPress(boolean isTouchDown, boolean shrink, long durationMs) {
-            verifyCallerAndClearCallingIdentityPostMain("animateNavBarLongPress", () ->
-                    notifyAnimateNavBarLongPress(isTouchDown, shrink, durationMs));
-        }
-
-        @Override
         public void onBackPressed() {
             verifyCallerAndClearCallingIdentityPostMain("onBackPressed", () -> {
                 sendEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK);
@@ -926,13 +920,6 @@ public class OverviewProxyService implements CallbackController<OverviewProxyLis
         }
     }
 
-    private void notifyAnimateNavBarLongPress(boolean isTouchDown, boolean shrink,
-            long durationMs) {
-        for (int i = mConnectionCallbacks.size() - 1; i >= 0; --i) {
-            mConnectionCallbacks.get(i).animateNavBarLongPress(isTouchDown, shrink, durationMs);
-        }
-    }
-
     public void notifyAssistantVisibilityChanged(float visibility) {
         try {
             if (mOverviewProxy != null) {
@@ -1077,7 +1064,6 @@ public class OverviewProxyService implements CallbackController<OverviewProxyLis
         default void onAssistantGestureCompletion(float velocity) {}
         default void startAssistant(Bundle bundle) {}
         default void setAssistantOverridesRequested(int[] invocationTypes) {}
-        default void animateNavBarLongPress(boolean isTouchDown, boolean shrink, long durationMs) {}
     }
 
     /**

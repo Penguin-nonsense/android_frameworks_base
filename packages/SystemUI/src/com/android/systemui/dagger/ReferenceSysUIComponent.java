@@ -16,6 +16,7 @@
 
 package com.android.systemui.dagger;
 
+import com.android.systemui.globalactions.ShutdownUiModule;
 import com.android.systemui.keyguard.CustomizationProvider;
 import com.android.systemui.shade.ShadeModule;
 import com.android.systemui.statusbar.NotificationInsetsModule;

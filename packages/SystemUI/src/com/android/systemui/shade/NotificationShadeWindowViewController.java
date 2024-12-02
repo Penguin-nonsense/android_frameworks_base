@@ -21,7 +21,11 @@ import static com.android.systemui.flags.Flags.TRACKPAD_GESTURE_COMMON;
 import static com.android.systemui.util.kotlin.JavaAdapterKt.collectFlow;
 
 import android.app.StatusBarManager;
+import android.database.ContentObserver;
+import android.os.Handler;
 import android.os.PowerManager;
+import android.os.UserHandle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.InputDevice;
@@ -43,6 +47,7 @@ import com.android.systemui.bouncer.ui.binder.KeyguardBouncerViewBinder;
 import com.android.systemui.bouncer.ui.viewmodel.KeyguardBouncerViewModel;
 import com.android.systemui.classifier.FalsingCollector;
 import com.android.systemui.dagger.SysUISingleton;
+import com.android.systemui.dagger.qualifiers.Main;
 import com.android.systemui.dock.DockManager;
 import com.android.systemui.flags.FeatureFlags;
 import com.android.systemui.flags.Flags;
@@ -60,6 +65,7 @@ import com.android.systemui.statusbar.LockscreenShadeTransitionController;
 import com.android.systemui.statusbar.NotificationInsetsController;
 import com.android.systemui.statusbar.NotificationShadeDepthController;
 import com.android.systemui.statusbar.NotificationShadeWindowController;
+import com.android.systemui.statusbar.StatusBarState;
 import com.android.systemui.statusbar.SysuiStatusBarStateController;
 import com.android.systemui.statusbar.notification.data.repository.NotificationExpansionRepository;
 import com.android.systemui.statusbar.notification.stack.AmbientState;
@@ -137,12 +143,15 @@ public class NotificationShadeWindowViewController {
                     step.getTransitionState() == TransitionState.RUNNING;
             };
     private final SystemClock mClock;
+    private final PowerManager mPowerManager;
 
-    private GestureDetector mQQSGestureHandler;
-    private final QQSGestureListener mQQSGestureListener;
+    private GestureDetector mDoubleTapGestureListener;
+    private SettingsObserver mSettingsObserver;
+    private boolean mDoubleTapEnabled;
 
     @Inject
     public NotificationShadeWindowViewController(
+            @Main Handler handler,
             LockscreenShadeTransitionController transitionController,
             FalsingCollector falsingCollector,
             SysuiStatusBarStateController statusBarStateController,
@@ -176,8 +185,7 @@ public class NotificationShadeWindowViewController {
             SystemClock clock,
             BouncerMessageInteractor bouncerMessageInteractor,
             BouncerLogger bouncerLogger,
-            KeyEventInteractor keyEventInteractor,
-            QQSGestureListener qqsGestureListener) {
+            KeyEventInteractor keyEventInteractor) {
         mLockscreenShadeTransitionController = transitionController;
         mFalsingCollector = falsingCollector;
         mStatusBarStateController = statusBarStateController;
@@ -204,7 +212,6 @@ public class NotificationShadeWindowViewController {
         mIsTrackpadCommonEnabled = featureFlags.isEnabled(TRACKPAD_GESTURE_COMMON);
         mFeatureFlags = featureFlags;
         mKeyEventInteractor = keyEventInteractor;
-        mQQSGestureListener = qqsGestureListener;
 
         // This view is not part of the newly inflated expanded status bar.
         mBrightnessMirror = mView.findViewById(R.id.brightness_mirror_container);
@@ -232,6 +239,26 @@ public class NotificationShadeWindowViewController {
                     progressProvider -> progressProvider.addCallback(
                             mDisableSubpixelTextTransitionListener));
         }
+
+        mPowerManager = mView.getContext().getSystemService(PowerManager.class);
+        mDoubleTapGestureListener = new GestureDetector(mView.getContext(),
+                new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(MotionEvent event) {
+                if (mDoubleTapEnabled
+                        && mStatusBarStateController.getState() == StatusBarState.KEYGUARD
+                        && !mService.isBouncerShowing()
+                        && !mNotificationPanelViewController.isShadeFullyExpanded()
+                        && !mStatusBarStateController.isDozing()
+                        && !mStatusBarStateController.isPulsing()) {
+                    mPowerManager.goToSleep(event.getEventTime());
+                    return true;
+                }
+                return false;
+            }
+        });
+        mSettingsObserver = new SettingsObserver(handler);
+        mSettingsObserver.register();
     }
 
     /**
@@ -253,8 +280,6 @@ public class NotificationShadeWindowViewController {
         mStackScrollLayout = mView.findViewById(R.id.notification_stack_scroller);
         mPulsingWakeupGestureHandler = new GestureDetector(mView.getContext(),
                 mPulsingGestureListener);
-        mQQSGestureHandler = new GestureDetector(mView.getContext(),
-                mQQSGestureListener);
         if (mFeatureFlags.isEnabled(LOCKSCREEN_WALLPAPER_DREAM_ENABLED)) {
             mDreamingWakeupGestureHandler = new GestureDetector(mView.getContext(),
                     mLockscreenHostedDreamGestureListener);
@@ -318,12 +343,8 @@ public class NotificationShadeWindowViewController {
                 }
 
                 mFalsingCollector.onTouchEvent(ev);
-                mQQSGestureHandler.onTouchEvent(ev);
-                // Pass touch events to the pulsing gesture listener only if it's dozing,
-                // otherwise lockscreen DT2S and AOD DT2W will conflict.
-                if (mStatusBarStateController.isDozing()) {
-                    mPulsingWakeupGestureHandler.onTouchEvent(ev);
-                }
+                mDoubleTapGestureListener.onTouchEvent(ev);
+                mPulsingWakeupGestureHandler.onTouchEvent(ev);
                 if (mDreamingWakeupGestureHandler != null
                         && mDreamingWakeupGestureHandler.onTouchEvent(ev)) {
                     return logDownDispatch(ev, "dream wakeup gesture handled", true);
@@ -583,5 +604,29 @@ public class NotificationShadeWindowViewController {
     @VisibleForTesting
     void setDragDownHelper(DragDownHelper dragDownHelper) {
         mDragDownHelper = dragDownHelper;
+    }
+
+    private final class SettingsObserver extends ContentObserver {
+        SettingsObserver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        public void onChange(boolean selfChange) {
+            update();
+        }
+
+        public void register() {
+            mView.getContext().getContentResolver().registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.GESTURE_DOUBLE_TAP_SLEEP),
+                    false, this);
+            update();
+        }
+
+        public void update() {
+            mDoubleTapEnabled = Settings.System.getIntForUser(
+                    mView.getContext().getContentResolver(),
+                    Settings.System.GESTURE_DOUBLE_TAP_SLEEP, 1, UserHandle.USER_CURRENT) == 1;
+        }
     }
 }
