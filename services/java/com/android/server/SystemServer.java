@@ -15,7 +15,7 @@
  */
 /*
  * Changes from Qualcomm Innovation Center are provided under the following license:
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022, 2024 Qualcomm Innovation Center, Inc. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
 */
 
@@ -2344,11 +2344,9 @@ public final class SystemServer implements Dumpable {
             mSystemServiceManager.startService(JOB_SCHEDULER_SERVICE_CLASS);
             t.traceEnd();
 
-            if (!sIsBike) {
-                t.traceBegin("StartSoundTrigger");
-                mSystemServiceManager.startService(SoundTriggerService.class);
-                t.traceEnd();
-            }
+            t.traceBegin("StartSoundTrigger");
+            mSystemServiceManager.startService(SoundTriggerService.class);
+            t.traceEnd();
 
             t.traceBegin("StartTrustManager");
             mSystemServiceManager.startService(TrustManagerService.class);
@@ -2371,11 +2369,9 @@ public final class SystemServer implements Dumpable {
             // FEATURE_VOICE_RECOGNIZERS feature is set, because it needs to take care
             // of initializing various settings.  It will internally modify its behavior
             // based on that feature.
-            if (!sIsBike) {
-                t.traceBegin("StartVoiceRecognitionManager");
-                mSystemServiceManager.startService(VOICE_RECOGNITION_MANAGER_SERVICE_CLASS);
-                t.traceEnd();
-            }
+            t.traceBegin("StartVoiceRecognitionManager");
+            mSystemServiceManager.startService(VOICE_RECOGNITION_MANAGER_SERVICE_CLASS);
+            t.traceEnd();
 
             if (GestureLauncherService.isGestureLauncherEnabled(context.getResources())) {
                 t.traceBegin("StartGestureLauncher");
