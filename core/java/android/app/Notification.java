@@ -2837,14 +2837,12 @@ public class Notification implements Parcelable
     }
 
     /**
-    * Note all {@link Uri} that are referenced internally, with the expectation that Uri permission
-    * grants will need to be issued to ensure the recipient of this object is able to render its
-    * contents.
-    * See b/281044385 for more context and examples about what happens when this isn't done
-    * correctly.
-    *
-    * @hide
-    */
+     * Note all {@link Uri} that are referenced internally, with the expectation
+     * that Uri permission grants will need to be issued to ensure the recipient
+     * of this object is able to render its contents.
+     *
+     * @hide
+     */
     public void visitUris(@NonNull Consumer<Uri> visitor) {
         if (publicVersion != null) {
             publicVersion.visitUris(visitor);
@@ -2888,13 +2886,13 @@ public class Notification implements Parcelable
             ArrayList<Person> people = extras.getParcelableArrayList(EXTRA_PEOPLE_LIST, android.app.Person.class);
             if (people != null && !people.isEmpty()) {
                 for (Person p : people) {
-                    p.visitUris(visitor);
+                    visitor.accept(p.getIconUri());
                 }
             }
 
             final Person person = extras.getParcelable(EXTRA_MESSAGING_PERSON, Person.class);
             if (person != null) {
-                person.visitUris(visitor);
+                visitor.accept(person.getIconUri());
             }
 
             final RemoteInputHistoryItem[] history = extras.getParcelableArray(
@@ -2916,7 +2914,12 @@ public class Notification implements Parcelable
             if (!ArrayUtils.isEmpty(messages)) {
                 for (MessagingStyle.Message message : MessagingStyle.Message
                         .getMessagesFromBundleArray(messages)) {
-                    message.visitUris(visitor);
+                    visitor.accept(message.getDataUri());
+
+                    Person senderPerson = message.getSenderPerson();
+                    if (senderPerson != null) {
+                        visitor.accept(senderPerson.getIconUri());
+                    }
                 }
             }
 
@@ -2925,7 +2928,12 @@ public class Notification implements Parcelable
             if (!ArrayUtils.isEmpty(historic)) {
                 for (MessagingStyle.Message message : MessagingStyle.Message
                         .getMessagesFromBundleArray(historic)) {
-                    message.visitUris(visitor);
+                    visitor.accept(message.getDataUri());
+
+                    Person senderPerson = message.getSenderPerson();
+                    if (senderPerson != null) {
+                        visitor.accept(senderPerson.getIconUri());
+                    }
                 }
             }
 
@@ -2935,7 +2943,7 @@ public class Notification implements Parcelable
         if (isStyle(CallStyle.class) & extras != null) {
             Person callPerson = extras.getParcelable(EXTRA_CALL_PERSON, Person.class);
             if (callPerson != null) {
-                callPerson.visitUris(visitor);
+                visitor.accept(callPerson.getIconUri());
             }
             visitIconUri(visitor, extras.getParcelable(EXTRA_VERIFICATION_ICON, Icon.class));
         }
@@ -8834,18 +8842,6 @@ public class Notification implements Parcelable
                     bundle.putBoolean(KEY_REMOTE_INPUT_HISTORY, mRemoteInputHistory);
                 }
                 return bundle;
-            }
-
-            /**
-             * See {@link Notification#visitUris(Consumer)}.
-             *
-             * @hide
-             */
-            public void visitUris(@NonNull Consumer<Uri> visitor) {
-                visitor.accept(getDataUri());
-                if (mSender != null) {
-                    mSender.visitUris(visitor);
-                }
             }
 
             /**
