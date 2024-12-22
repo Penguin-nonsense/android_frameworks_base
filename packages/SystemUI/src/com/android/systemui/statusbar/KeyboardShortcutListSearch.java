@@ -478,6 +478,7 @@ public final class KeyboardShortcutListSearch {
         }
 
         retrieveKeyCharacterMap(deviceId);
+
         mAppShortcutsReceived = false;
         mImeShortcutsReceived = false;
         mWindowManager.requestAppKeyboardShortcuts(
