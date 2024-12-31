@@ -452,6 +452,11 @@ public final class SystemServer implements Dumpable {
 
     private static final String UNCRYPT_PACKAGE_FILE = "/cache/recovery/uncrypt_file";
     private static final String BLOCK_MAP_FILE = "/cache/recovery/block.map";
+    private static final String DEVICE_LOCK_SERVICE_CLASS =
+            "com.android.server.devicelock.DeviceLockService";
+    private static final String DEVICE_LOCK_APEX_PATH =
+            "/apex/com.android.devicelock/javalib/service-devicelock.jar";
+    private static final String IS_BIKE = "ro.hw.vehicle.isbike";
 
     // maximum number of binder threads used for system_server
     // will be higher than the system default
@@ -2931,6 +2936,16 @@ public final class SystemServer implements Dumpable {
         t.traceBegin("HealthConnectManagerService");
         mSystemServiceManager.startService(HEALTHCONNECT_MANAGER_SERVICE_CLASS);
         t.traceEnd();
+
+        // Start Device lock service if feature is enabled to fix crash issue during boot
+        if (SystemProperties.getBoolean(IS_BIKE, false)) {
+            if (mPackageManager.hasSystemFeature(PackageManager.FEATURE_DEVICE_LOCK)) {
+                t.traceBegin("DeviceLockService");
+                mSystemServiceManager.startServiceFromJar(DEVICE_LOCK_SERVICE_CLASS,
+                        DEVICE_LOCK_APEX_PATH);
+                t.traceEnd();
+            }
+        }
 
         // These are needed to propagate to the runnable below.
         final NetworkManagementService networkManagementF = networkManagement;
