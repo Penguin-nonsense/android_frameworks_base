@@ -391,6 +391,15 @@ public class TelecomManager {
     public static final String EXTRA_OUTGOING_CALL_EXTRAS =
             "android.telecom.extra.OUTGOING_CALL_EXTRAS";
 
+     /**
+     * Optional data in EXTRA_OUTGOING_CALL_EXTRAS Bundle for ACTION_CALL_EMERGENCY
+     * which contains MSD data about the call.
+     *
+     * @hide
+     */
+    public static final String EXTRA_ECALL_MSD =
+            "android.telecom.extra.ECALL_MSD";
+
     /**
      * An optional boolean extra on {@link android.content.Intent#ACTION_CALL_EMERGENCY} to tell
      * whether the user's dial intent is emergency; this is required to specify when the dialed
